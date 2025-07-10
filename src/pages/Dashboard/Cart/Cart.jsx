@@ -3,12 +3,35 @@ import useCart from "../../../hooks/useCart";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 
 const Cart = () => {
     const [cart, refetch] = useCart();
-    const totalPrice = cart.reduce((total, item) => total + item.price, 0);
     const axiosSecure = useAxiosSecure();
+    const [coupon, setCoupon] = useState("");
+    const [discountApplied, setDiscountApplied] = useState(false);
+
+    const totalPrice = cart.reduce((total, item) => total + item.price, 0);
+    const discountedPrice = discountApplied ? (totalPrice * 0.8).toFixed(2) : totalPrice.toFixed(2);
+
+    const handleApplyCoupon = () => {
+        if (coupon.trim().toLowerCase() === "newbie" && !discountApplied) {
+            Swal.fire({
+                icon: "success",
+                title: "Coupon Applied!",
+                text: "20% discount applied successfully.",
+                timer: 1500,
+                showConfirmButton: false
+            });
+            setDiscountApplied(true);
+        } else if (discountApplied) {
+            Swal.fire("Already Applied", "Coupon has already been used.", "info");
+        } else {
+            Swal.fire("Invalid Coupon", "Please enter a valid coupon code.", "error");
+        }
+    };
+
     const handleDelete = id => {
         Swal.fire({
             title: "Are you sure?",
@@ -26,39 +49,37 @@ const Cart = () => {
                             refetch();
                             Swal.fire({
                                 title: "Deleted!",
-                                text: "Your file has been deleted.",
+                                text: "Your item has been deleted.",
                                 icon: "success",
-                                timer: "1000"
+                                timer: 1000
                             });
                         }
-
-                    })
+                    });
             }
         });
-    }
+    };
+
     return (
-        <div>
-            <div className="flex justify-evenly mb-6">
-                <h2 className="text-4xl">
+        <div className="px-4">
+            {/* Top Summary */}
+            <div className="flex flex-col md:flex-row md:justify-between items-center mb-6 gap-4">
+                <h2 className="text-3xl font-semibold">
                     Items: {cart.length}
                 </h2>
-                <h2 className="text-4xl">
-                    Total Price: {totalPrice}
+                <h2 className="text-3xl font-semibold">
+                    Total: <span className={discountApplied ? "line-through text-red-500 mr-2" : ""}>${totalPrice.toFixed(2)}</span>
+                    {discountApplied && <span className="text-green-600 font-bold">${discountedPrice}</span>}
                 </h2>
-                <Link to="/dashboard/payment">
-                    <button className="btn btm-primary">Pay</button>
-                </Link>
             </div>
 
-            {/* Order Item table */}
-            <div className="overflow-x-auto">
+            
+
+            {/* Order Item Table */}
+            <div className="overflow-x-auto mb-10">
                 <table className="table w-full">
-                    {/* head */}
                     <thead>
                         <tr>
-                            <th>
-                                #
-                            </th>
+                            <th>#</th>
                             <th>Image</th>
                             <th>Name</th>
                             <th>Price</th>
@@ -66,37 +87,59 @@ const Cart = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* row 1 */}
                         {
-                            cart.map((item, index) => <tr key={item._id}>
-                                <th>
-                                    {index + 1}
-                                </th>
-                                <td>
-                                    <div className="flex items-center gap-3">
-                                        <div className="avatar">
-                                            <div className="mask mask-squircle h-12 w-12">
-                                                <img
-                                                    src={item.image}
-                                                />
+                            cart.map((item, index) => (
+                                <tr key={item._id}>
+                                    <td>{index + 1}</td>
+                                    <td>
+                                        <div className="flex items-center gap-3">
+                                            <div className="avatar">
+                                                <div className="mask mask-squircle h-12 w-12">
+                                                    <img src={item.image} alt={item.name} />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    {item.name}
-                                    <br />
-                                </td>
-                                <td>{item.price} $</td>
-                                <th>
-                                    <button onClick={() => handleDelete(item._id)} className="btn btn-ghost btn-lg text-red-700"><FaTrash></FaTrash></button>
-                                </th>
-                            </tr>)
+                                    </td>
+                                    <td>{item.name}</td>
+                                    <td>${item.price}</td>
+                                    <td>
+                                        <button
+                                            onClick={() => handleDelete(item._id)}
+                                            className="btn btn-ghost btn-lg text-red-700"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
                         }
-
                     </tbody>
-
                 </table>
+            </div>
+
+            {/* Pay Button - Bottom Right */}
+            <div className="flex justify-between">
+                {/* Coupon Input */}
+                <div className="flex items-center gap-4 mb-6">
+                    <input
+                        type="text"
+                        placeholder="Enter coupon code"
+                        className="input input-bordered w-full max-w-xs"
+                        value={coupon}
+                        onChange={(e) => setCoupon(e.target.value)}
+                        disabled={discountApplied}
+                    />
+                    <button 
+                        onClick={handleApplyCoupon}
+                        className="btn btn-primary border-0 border-b-2 border-orange-400 "
+                        disabled={discountApplied}
+                    >
+                        Apply
+                    </button>
+                </div>
+                <Link to="/dashboard/payment" state={{ total: discountedPrice }}>
+                    <button className="btn btn-primary">Pay</button>
+                </Link>
             </div>
         </div>
     );

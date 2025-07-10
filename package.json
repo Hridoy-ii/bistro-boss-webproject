@@ -16,7 +16,7 @@
     "@tanstack/react-query": "^5.64.2",
     "axios": "^1.7.9",
     "daisyui": "^2.51.6",
-    "firebase": "^11.0.2",
+    "firebase": "^11.5.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
     "react": "^18.2.0",
@@ -29,6 +29,7 @@
     "react-router-dom": "^6.11.2",
     "react-simple-captcha": "^9.3.1",
     "react-tabs": "^6.0.1",
+    "recharts": "^2.15.1",
     "sort-by": "^0.0.2",
     "sweetalert2": "^11.15.10",
     "swiper": "^9.3.2"

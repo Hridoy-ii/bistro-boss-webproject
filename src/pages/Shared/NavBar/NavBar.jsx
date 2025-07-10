@@ -3,13 +3,15 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../../../providers/AuthProvider";
 import { FaOpencart } from "react-icons/fa6";
 import useCart from "../../../hooks/useCart";
+import useAdmin from "../../../hooks/useAdmin";
 
 
 
 const NavBar = () => {
 
     const { user, logOut } = useContext(AuthContext);
-    const [ cart ] = useCart();
+    const [isAdmin] = useAdmin();
+    const [cart] = useCart();
     console.log(cart);
 
     const handleSignOut = () => {
@@ -22,7 +24,13 @@ const NavBar = () => {
         <li><Link to="/">Home</Link></li>
         <li><Link to="/menu">Our Menu</Link></li>
         <li><Link to="/order/salad">Order Food</Link></li>
-        <li><Link to="/secret">Secret</Link></li>
+
+        {
+            user && isAdmin && <li><Link to="/dashboard/adminHome">Dashboard</Link></li>
+        }
+        {
+            user && !isAdmin && <li><Link to="/dashboard/userHome">Dashboard</Link></li>
+        }
         <li><Link to="/dashboard/cart">
             <button className="btn">
                 <FaOpencart className="mr-4" />
@@ -32,15 +40,7 @@ const NavBar = () => {
         </Link></li>
 
 
-        {
-            user ? <>
-                {/* <span>{ user?.displayName }</span> */}
-                <button onClick={handleSignOut} className="btn btn-active">Log out</button>
-            </> :
-                <>
-                    <li><Link to="/login">Login</Link></li>
-                </>
-        }
+
 
     </>
 
@@ -64,7 +64,25 @@ const NavBar = () => {
                     </ul>
                 </div>
                 <div className="navbar-end">
-                    <a className="btn">Get started</a>
+                    <a className="">
+                        {
+                            user ? (
+                                <div className="flex items-center gap-3">
+                                    {user.photoURL ? (
+                                        <img className="w-10 h-10 rounded-full" src={user.photoURL} alt="User profile" />
+                                    ) : (
+                                        <div>{user.displayName}</div>
+                                    )}
+                                    {!user.photoURL && <div>{user.displayName}</div>}
+                                    <button onClick={handleSignOut} className="btn btn-active">Log out</button>
+                                </div>
+                            ) : (
+                                    <li className="btn btn-active"><Link to="/login">Login</Link></li>
+                            )
+                        }
+
+
+                    </a>
                 </div>
             </div>
         </>

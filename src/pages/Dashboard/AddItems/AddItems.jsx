@@ -30,7 +30,7 @@ const AddItems = () => {
             // picking data as like as the database json format to send
             const menuItem = {
                 name: data.Name,
-                category: data.Category,
+                category: data.Category.toLowerCase(),
                 price: parseFloat(data.Price),
                 recipe: data.recipe,
                 image: res.data.data.display_url
@@ -82,11 +82,11 @@ const AddItems = () => {
                             <select className="select select-bordered"
                                 {...register("Category", { required: true })}>
                                 <option value="">Category</option>
-                                <option value="Salad">Salad</option>
-                                <option value="Desert">Desert</option>
-                                <option value="Pizza">Pizza</option>
-                                <option value="Soup">Soup</option>
-                                <option value="Drinks">Drinks</option>
+                                <option value="salad">Salad</option>
+                                <option value="desert">Desert</option>
+                                <option value="pizza">Pizza</option>
+                                <option value="soup">Soup</option>
+                                <option value="drinks">Drinks</option>
                             </select>
                         </label>
 
